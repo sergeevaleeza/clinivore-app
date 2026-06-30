@@ -178,11 +178,17 @@ export function normalizeName(name: string): string {
 export interface PatientMatchCandidate {
   id: string;
   displayName: string;
+  legalFirstName?: string | null;
+  legalLastName?: string | null;
 }
 
 export interface PatientMatchResult {
   patient: PatientMatchCandidate | null;
   confidence: "exact" | "fuzzy" | "none";
+}
+
+function legalFullName(c: PatientMatchCandidate): string {
+  return [c.legalFirstName, c.legalLastName].filter(Boolean).join(" ");
 }
 
 export function matchPatientByName(
@@ -191,12 +197,30 @@ export function matchPatientByName(
 ): PatientMatchResult {
   const target = normalizeName(patientName);
 
+  // Exact match against legal full name (primary — full name from PF export)
+  for (const c of candidates) {
+    const legal = legalFullName(c);
+    if (legal && normalizeName(legal) === target) {
+      return { patient: c, confidence: "exact" };
+    }
+  }
+
+  // Exact match against display name (fallback)
   for (const c of candidates) {
     if (normalizeName(c.displayName) === target) {
       return { patient: c, confidence: "exact" };
     }
   }
 
+  // Fuzzy match against legal full name
+  for (const c of candidates) {
+    const legal = legalFullName(c);
+    if (legal && levenshtein(normalizeName(legal), target) <= 2) {
+      return { patient: c, confidence: "fuzzy" };
+    }
+  }
+
+  // Fuzzy match against display name
   for (const c of candidates) {
     if (levenshtein(normalizeName(c.displayName), target) <= 2) {
       return { patient: c, confidence: "fuzzy" };

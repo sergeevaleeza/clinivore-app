@@ -17,15 +17,17 @@ model User {
 }
 
 model Patient {
-  id           String   @id @default(cuid())
-  displayName  String
-  internalId   String   @unique
-  phoneOptional String?
-  emailOptional String?
-  providerName String
-  isActive     Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id             String   @id @default(cuid())
+  displayName    String
+  internalId     String   @unique
+  legalFirstName String?
+  legalLastName  String?
+  phoneOptional  String?
+  emailOptional  String?
+  providerName   String
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   enrollments   TreatmentEnrollment[]
   treatmentEvents TreatmentEvent[]

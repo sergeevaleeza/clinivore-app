@@ -166,7 +166,7 @@ async function main() {
 
   // 1. HIGH PRIORITY — Vivitrol, 10+ days overdue
   const p1 = await prisma.patient.create({
-    data: { displayName: "J. Doe", internalId: "PF-10294", providerName: "Dr. Levinson", phoneOptional: "555-0110", emailOptional: "jdoe@example.com" },
+    data: { displayName: "J. Doe", legalFirstName: "Jane", legalLastName: "Doe", internalId: "PF-10294", providerName: "Dr. Levinson", phoneOptional: "555-0110", emailOptional: "jdoe@example.com" },
   });
   const e1 = await prisma.treatmentEnrollment.create({
     data: { patientId: p1.id, protocolId: vivitrol.id, startDate: daysAgo(120), lastTreatmentDate: daysAgo(40), nextDueDate: daysAgo(12), status: "ACTIVE" },
@@ -183,7 +183,7 @@ async function main() {
 
   // 2. HIGH PRIORITY — Sublocade, 9 days overdue
   const p2 = await prisma.patient.create({
-    data: { displayName: "A. Kim", internalId: "PF-10388", providerName: "Dr. Patel", phoneOptional: "555-0122" },
+    data: { displayName: "A. Kim", legalFirstName: "Amy", legalLastName: "Kim", internalId: "PF-10388", providerName: "Dr. Patel", phoneOptional: "555-0122" },
   });
   const e2 = await prisma.treatmentEnrollment.create({
     data: { patientId: p2.id, protocolId: sublocade.id, startDate: daysAgo(100), lastTreatmentDate: daysAgo(39), nextDueDate: daysAgo(9), status: "ACTIVE" },
@@ -199,7 +199,7 @@ async function main() {
 
   // 3. OVERDUE — Invega Sustenna, 4 days overdue
   const p3 = await prisma.patient.create({
-    data: { displayName: "M. Reyes", internalId: "PF-10318", providerName: "Dr. Levinson", phoneOptional: "555-0131" },
+    data: { displayName: "M. Reyes", legalFirstName: "Maria", legalLastName: "Reyes", internalId: "PF-10318", providerName: "Dr. Levinson", phoneOptional: "555-0131" },
   });
   const e3 = await prisma.treatmentEnrollment.create({
     data: { patientId: p3.id, protocolId: invegaSustenna.id, startDate: daysAgo(90), lastTreatmentDate: daysAgo(34), nextDueDate: daysAgo(4), status: "ACTIVE" },
@@ -215,7 +215,7 @@ async function main() {
 
   // 4. OVERDUE — Abilify Maintena, 5 days overdue
   const p4 = await prisma.patient.create({
-    data: { displayName: "T. Park", internalId: "PF-10421", providerName: "Dr. Patel", phoneOptional: "555-0143", emailOptional: "tpark@example.com" },
+    data: { displayName: "T. Park", legalFirstName: "Thomas", legalLastName: "Park", internalId: "PF-10421", providerName: "Dr. Patel", phoneOptional: "555-0143", emailOptional: "tpark@example.com" },
   });
   const e4 = await prisma.treatmentEnrollment.create({
     data: { patientId: p4.id, protocolId: abilifyMaintena.id, startDate: daysAgo(95), lastTreatmentDate: daysAgo(35), nextDueDate: daysAgo(5), status: "ACTIVE" },
@@ -232,7 +232,7 @@ async function main() {
 
   // 5. DUE TODAY — Invega Trinza
   const p5 = await prisma.patient.create({
-    data: { displayName: "R. Morales", internalId: "PF-10377", providerName: "Dr. Levinson", phoneOptional: "555-0155" },
+    data: { displayName: "R. Morales", legalFirstName: "Rosa", legalLastName: "Morales", internalId: "PF-10377", providerName: "Dr. Levinson", phoneOptional: "555-0155" },
   });
   const e5 = await prisma.treatmentEnrollment.create({
     data: { patientId: p5.id, protocolId: invegaTrinza.id, startDate: daysAgo(180), lastTreatmentDate: daysAgo(90), nextDueDate: TODAY, status: "ACTIVE" },
@@ -244,7 +244,7 @@ async function main() {
 
   // 6. DUE TODAY — Spravato
   const p6 = await prisma.patient.create({
-    data: { displayName: "L. Chen", internalId: "PF-10512", providerName: "Dr. Patel", phoneOptional: "555-0166", emailOptional: "lchen@example.com" },
+    data: { displayName: "L. Chen", legalFirstName: "Lucas", legalLastName: "Chen", internalId: "PF-10512", providerName: "Dr. Patel", phoneOptional: "555-0166", emailOptional: "lchen@example.com" },
   });
   const e6 = await prisma.treatmentEnrollment.create({
     data: { patientId: p6.id, protocolId: spravato.id, startDate: daysAgo(56), lastTreatmentDate: daysAgo(7), nextDueDate: TODAY, status: "ACTIVE" },
@@ -257,7 +257,7 @@ async function main() {
 
   // 7. DUE SOON — Ketamine Induction (in 2 days)
   const p7 = await prisma.patient.create({
-    data: { displayName: "S. Pham", internalId: "PF-10301", providerName: "Dr. Patel", phoneOptional: "555-0177" },
+    data: { displayName: "S. Pham", legalFirstName: "Sara", legalLastName: "Pham", internalId: "PF-10301", providerName: "Dr. Patel", phoneOptional: "555-0177" },
   });
   const e7 = await prisma.treatmentEnrollment.create({
     data: { patientId: p7.id, protocolId: ketamineInduction.id, startDate: daysAgo(10), lastTreatmentDate: daysAgo(3), nextDueDate: daysFromNow(0), status: "ACTIVE", notes: "Induction series — session 4 of 6" },
@@ -270,7 +270,7 @@ async function main() {
 
   // 8. DUE SOON — Vivitrol in 4 days
   const p8 = await prisma.patient.create({
-    data: { displayName: "T. Walsh", internalId: "PF-10355", providerName: "Dr. Levinson", phoneOptional: "555-0188" },
+    data: { displayName: "T. Walsh", legalFirstName: "Trevor", legalLastName: "Walsh", internalId: "PF-10355", providerName: "Dr. Levinson", phoneOptional: "555-0188" },
   });
   const e8 = await prisma.treatmentEnrollment.create({
     data: { patientId: p8.id, protocolId: vivitrol.id, startDate: daysAgo(84), lastTreatmentDate: daysAgo(24), nextDueDate: daysFromNow(4), status: "ACTIVE" },
@@ -283,7 +283,7 @@ async function main() {
 
   // 9. DUE SOON — Sublocade in 6 days
   const p9 = await prisma.patient.create({
-    data: { displayName: "D. Okafor", internalId: "PF-10466", providerName: "Dr. Patel", emailOptional: "dokafor@example.com" },
+    data: { displayName: "D. Okafor", legalFirstName: "David", legalLastName: "Okafor", internalId: "PF-10466", providerName: "Dr. Patel", emailOptional: "dokafor@example.com" },
   });
   const e9 = await prisma.treatmentEnrollment.create({
     data: { patientId: p9.id, protocolId: sublocade.id, startDate: daysAgo(90), lastTreatmentDate: daysAgo(24), nextDueDate: daysFromNow(6), status: "ACTIVE" },
@@ -295,7 +295,7 @@ async function main() {
 
   // 10. DUE SOON — Aristada in 5 days
   const p10 = await prisma.patient.create({
-    data: { displayName: "C. Mbanaso", internalId: "PF-10533", providerName: "Dr. Levinson", phoneOptional: "555-0199" },
+    data: { displayName: "C. Mbanaso", legalFirstName: "Chioma", legalLastName: "Mbanaso", internalId: "PF-10533", providerName: "Dr. Levinson", phoneOptional: "555-0199" },
   });
   const e10 = await prisma.treatmentEnrollment.create({
     data: { patientId: p10.id, protocolId: aristada.id, startDate: daysAgo(65), lastTreatmentDate: daysAgo(25), nextDueDate: daysFromNow(5), status: "ACTIVE" },
@@ -307,7 +307,7 @@ async function main() {
 
   // 11. ON TRACK — Invega Sustenna
   const p11 = await prisma.patient.create({
-    data: { displayName: "E. Vasquez", internalId: "PF-10601", providerName: "Dr. Levinson", phoneOptional: "555-0210" },
+    data: { displayName: "E. Vasquez", legalFirstName: "Elena", legalLastName: "Vasquez", internalId: "PF-10601", providerName: "Dr. Levinson", phoneOptional: "555-0210" },
   });
   const e11 = await prisma.treatmentEnrollment.create({
     data: { patientId: p11.id, protocolId: invegaSustenna.id, startDate: daysAgo(150), lastTreatmentDate: daysAgo(15), nextDueDate: daysFromNow(15), status: "ACTIVE" },
@@ -320,7 +320,7 @@ async function main() {
 
   // 12. ON TRACK — Abilify Maintena
   const p12 = await prisma.patient.create({
-    data: { displayName: "N. Adeyemi", internalId: "PF-10645", providerName: "Dr. Patel", phoneOptional: "555-0221", emailOptional: "nadeyemi@example.com" },
+    data: { displayName: "N. Adeyemi", legalFirstName: "Nadia", legalLastName: "Adeyemi", internalId: "PF-10645", providerName: "Dr. Patel", phoneOptional: "555-0221", emailOptional: "nadeyemi@example.com" },
   });
   const e12 = await prisma.treatmentEnrollment.create({
     data: { patientId: p12.id, protocolId: abilifyMaintena.id, startDate: daysAgo(120), lastTreatmentDate: daysAgo(14), nextDueDate: daysFromNow(16), status: "ACTIVE" },
@@ -333,7 +333,7 @@ async function main() {
 
   // 13. ON TRACK — Ketamine Maintenance
   const p13 = await prisma.patient.create({
-    data: { displayName: "B. Osei", internalId: "PF-10677", providerName: "Dr. Patel", emailOptional: "bosei@example.com" },
+    data: { displayName: "B. Osei", legalFirstName: "Brian", legalLastName: "Osei", internalId: "PF-10677", providerName: "Dr. Patel", emailOptional: "bosei@example.com" },
   });
   const e13 = await prisma.treatmentEnrollment.create({
     data: { patientId: p13.id, protocolId: ketamineMaintenance.id, startDate: daysAgo(84), lastTreatmentDate: daysAgo(7), nextDueDate: daysFromNow(21), status: "ACTIVE", notes: "Maintenance phase post induction." },
@@ -346,7 +346,7 @@ async function main() {
 
   // 14. COMPLETED THIS WEEK — Vivitrol
   const p14 = await prisma.patient.create({
-    data: { displayName: "H. Nguyen", internalId: "PF-10711", providerName: "Dr. Levinson", phoneOptional: "555-0240" },
+    data: { displayName: "H. Nguyen", legalFirstName: "Hannah", legalLastName: "Nguyen", internalId: "PF-10711", providerName: "Dr. Levinson", phoneOptional: "555-0240" },
   });
   const e14 = await prisma.treatmentEnrollment.create({
     data: { patientId: p14.id, protocolId: vivitrol.id, startDate: daysAgo(112), lastTreatmentDate: daysAgo(2), nextDueDate: daysFromNow(26), status: "ACTIVE" },
@@ -360,7 +360,7 @@ async function main() {
 
   // 15. COMPLETED THIS WEEK — Spravato
   const p15 = await prisma.patient.create({
-    data: { displayName: "G. Tanaka", internalId: "PF-10745", providerName: "Dr. Patel", phoneOptional: "555-0251", emailOptional: "gtanaka@example.com" },
+    data: { displayName: "G. Tanaka", legalFirstName: "Grace", legalLastName: "Tanaka", internalId: "PF-10745", providerName: "Dr. Patel", phoneOptional: "555-0251", emailOptional: "gtanaka@example.com" },
   });
   const e15 = await prisma.treatmentEnrollment.create({
     data: { patientId: p15.id, protocolId: spravato.id, startDate: daysAgo(42), lastTreatmentDate: daysAgo(3), nextDueDate: daysFromNow(4), status: "ACTIVE" },
@@ -373,7 +373,7 @@ async function main() {
 
   // 16. PAUSED — Invega Trinza
   const p16 = await prisma.patient.create({
-    data: { displayName: "F. Romero", internalId: "PF-10780", providerName: "Dr. Levinson", phoneOptional: "555-0262" },
+    data: { displayName: "F. Romero", legalFirstName: "Felipe", legalLastName: "Romero", internalId: "PF-10780", providerName: "Dr. Levinson", phoneOptional: "555-0262" },
   });
   const e16 = await prisma.treatmentEnrollment.create({
     data: { patientId: p16.id, protocolId: invegaTrinza.id, startDate: daysAgo(200), lastTreatmentDate: daysAgo(60), nextDueDate: daysFromNow(30), status: "PAUSED", notes: "Paused pending insurance prior auth renewal." },
@@ -386,7 +386,7 @@ async function main() {
 
   // 17. ON TRACK — Aristada
   const p17 = await prisma.patient.create({
-    data: { displayName: "K. Abara", internalId: "PF-10815", providerName: "Dr. Patel", emailOptional: "kabara@example.com" },
+    data: { displayName: "K. Abara", legalFirstName: "Kemi", legalLastName: "Abara", internalId: "PF-10815", providerName: "Dr. Patel", emailOptional: "kabara@example.com" },
   });
   const e17 = await prisma.treatmentEnrollment.create({
     data: { patientId: p17.id, protocolId: aristada.id, startDate: daysAgo(90), lastTreatmentDate: daysAgo(20), nextDueDate: daysFromNow(10), status: "ACTIVE" },
@@ -399,7 +399,7 @@ async function main() {
 
   // 18. OVERDUE — Abilify Maintena, 8 days overdue (borderline escalation)
   const p18 = await prisma.patient.create({
-    data: { displayName: "P. Singh", internalId: "PF-10849", providerName: "Dr. Levinson", phoneOptional: "555-0283" },
+    data: { displayName: "P. Singh", legalFirstName: "Priya", legalLastName: "Singh", internalId: "PF-10849", providerName: "Dr. Levinson", phoneOptional: "555-0283" },
   });
   const e18 = await prisma.treatmentEnrollment.create({
     data: { patientId: p18.id, protocolId: abilifyMaintena.id, startDate: daysAgo(120), lastTreatmentDate: daysAgo(38), nextDueDate: daysAgo(8), status: "ACTIVE" },
@@ -415,7 +415,7 @@ async function main() {
 
   // 19. NEEDS OUTREACH — Invega Sustenna (open outreach task)
   const p19 = await prisma.patient.create({
-    data: { displayName: "W. Mensah", internalId: "PF-10883", providerName: "Dr. Patel", phoneOptional: "555-0294", emailOptional: "wmensah@example.com" },
+    data: { displayName: "W. Mensah", legalFirstName: "William", legalLastName: "Mensah", internalId: "PF-10883", providerName: "Dr. Patel", phoneOptional: "555-0294", emailOptional: "wmensah@example.com" },
   });
   const e19 = await prisma.treatmentEnrollment.create({
     data: { patientId: p19.id, protocolId: invegaSustenna.id, startDate: daysAgo(180), lastTreatmentDate: daysAgo(28), nextDueDate: daysFromNow(2), status: "ACTIVE" },
@@ -431,7 +431,7 @@ async function main() {
 
   // 20. ON TRACK — Ketamine Maintenance
   const p20 = await prisma.patient.create({
-    data: { displayName: "I. Zhao", internalId: "PF-10917", providerName: "Dr. Patel", emailOptional: "izhao@example.com" },
+    data: { displayName: "I. Zhao", legalFirstName: "Isabella", legalLastName: "Zhao", internalId: "PF-10917", providerName: "Dr. Patel", emailOptional: "izhao@example.com" },
   });
   const e20 = await prisma.treatmentEnrollment.create({
     data: { patientId: p20.id, protocolId: ketamineMaintenance.id, startDate: daysAgo(56), lastTreatmentDate: daysAgo(10), nextDueDate: daysFromNow(18), status: "ACTIVE", notes: "Post-induction maintenance — responding well." },

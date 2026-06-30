@@ -137,10 +137,10 @@ export default function SettingsPage() {
 {`# Use mock AI (default, safe, no PHI risk)
 AI_PROVIDER=mock
 
-# Use OpenAI (non-PHI only unless BAA)
-AI_PROVIDER=openai
-AI_API_KEY=sk-...
-AI_MODEL=gpt-4o
+# Use Anthropic Claude (BAA available for HIPAA use cases)
+AI_PROVIDER=anthropic
+AI_API_KEY=sk-ant-...
+AI_MODEL=claude-sonnet-4-6
 
 # Only enable with BAA-covered vendor
 ALLOW_PHI_TO_AI=false`}

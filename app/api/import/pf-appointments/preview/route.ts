@@ -26,7 +26,12 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    const candidatePool = patients.map((p) => ({ id: p.id, displayName: p.displayName }));
+    const candidatePool = patients.map((p) => ({
+      id: p.id,
+      displayName: p.displayName,
+      legalFirstName: p.legalFirstName,
+      legalLastName: p.legalLastName,
+    }));
 
     type NormalizedStatus = "completed" | "no_show" | "cancelled" | "rescheduled" | "unknown";
     type SuggestedAction = "mark_completed" | "mark_missed" | "ignore";

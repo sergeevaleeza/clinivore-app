@@ -4,6 +4,52 @@ All notable changes to Clinivore are documented here.
 
 ---
 
+## [0.4.1] — 2026-06-30
+
+### Fix: Legal Name Fields for Practice Fusion Name Matching
+
+**Root cause**: PF appointment exports contain full legal names ("Jane Doe", "Brian Osei") but the Patient model only stored display names ("J. Doe", "B. Osei"). The fuzzy matcher's Levenshtein distance threshold (≤ 2 characters) is too tight to bridge a first-initial abbreviation to a full first name — "jane doe" vs "j doe" is distance 3, so only Amy Kim happened to match by chance (distance 1).
+
+**Schema (`prisma/schema.prisma`)**
+- Added `legalFirstName String?` and `legalLastName String?` to the `Patient` model (both optional, backward compatible)
+
+**Seed (`prisma/seed.ts`)**
+- Added `legalFirstName` / `legalLastName` to all 20 `patient.create()` calls directly — no backfill loop. The seed always deletes and recreates all records, so `forEach`-async or `upsert`-missing-fields bugs can't occur here; legal names were simply included in the initial create data
+
+  | Display | Legal First | Legal Last |
+  |---------|-------------|------------|
+  | J. Doe | Jane | Doe |
+  | A. Kim | Amy | Kim |
+  | M. Reyes | Maria | Reyes |
+  | T. Park | Thomas | Park |
+  | R. Morales | Rosa | Morales |
+  | L. Chen | Lucas | Chen |
+  | S. Pham | Sara | Pham |
+  | T. Walsh | Trevor | Walsh |
+  | D. Okafor | David | Okafor |
+  | C. Mbanaso | Chioma | Mbanaso |
+  | E. Vasquez | Elena | Vasquez |
+  | N. Adeyemi | Nadia | Adeyemi |
+  | B. Osei | Brian | Osei |
+  | H. Nguyen | Hannah | Nguyen |
+  | G. Tanaka | Grace | Tanaka |
+  | F. Romero | Felipe | Romero |
+  | K. Abara | Kemi | Abara |
+  | P. Singh | Priya | Singh |
+  | W. Mensah | William | Mensah |
+  | I. Zhao | Isabella | Zhao |
+
+**Matcher (`lib/csvImport.ts`)**
+- `PatientMatchCandidate` extended with optional `legalFirstName` / `legalLastName`
+- `matchPatientByName()` now tries in priority order: (1) exact legal name, (2) exact display name, (3) fuzzy legal name, (4) fuzzy display name — so Amy Kim now correctly resolves as `confidence: "exact"` instead of `"fuzzy"`
+
+**Preview route (`app/api/import/pf-appointments/preview/route.ts`)**
+- `candidatePool` now includes `legalFirstName` / `legalLastName` from the patient query
+
+**To apply**: run `npx prisma db push` (adds columns to Neon, no data loss — both fields are nullable), then `npx prisma db seed`
+
+---
+
 ## [0.4.0] — 2026-06-29
 
 ### Feature: Practice Fusion Appointment Import
