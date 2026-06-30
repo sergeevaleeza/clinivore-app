@@ -1,6 +1,8 @@
 export interface CsvRow {
   internal_id: string;
   display_name: string;
+  legal_first_name?: string;
+  legal_last_name?: string;
   treatment_name: string;
   provider_name: string;
   last_treatment_date: string;
@@ -34,6 +36,8 @@ export function validateCsvRow(row: Partial<CsvRow>, index: number): ParsedRow {
   return {
     internal_id: row.internal_id ?? "",
     display_name: row.display_name ?? "",
+    legal_first_name: row.legal_first_name,
+    legal_last_name: row.legal_last_name,
     treatment_name: row.treatment_name ?? "",
     provider_name: row.provider_name ?? "",
     last_treatment_date: row.last_treatment_date ?? "",
@@ -50,6 +54,8 @@ export function validateCsvRow(row: Partial<CsvRow>, index: number): ParsedRow {
 export const CSV_TEMPLATE_HEADERS = [
   "internal_id",
   "display_name",
+  "legal_first_name",
+  "legal_last_name",
   "treatment_name",
   "provider_name",
   "last_treatment_date",
@@ -60,8 +66,8 @@ export const CSV_TEMPLATE_HEADERS = [
 ].join(",");
 
 export const CSV_TEMPLATE_EXAMPLE = `${CSV_TEMPLATE_HEADERS}
-PT-001,J. Smith,Vivitrol,Dr. Jones,2026-04-15,2026-05-15,555-0100,jsmith@example.com,Monthly injection
-PT-002,M. Brown,Ketamine Maintenance,Dr. Patel,2026-04-28,2026-05-26,,mbrowncare@example.com,Maintenance phase`;
+PT-001,J. Smith,John,Smith,Vivitrol,Dr. Jones,2026-04-15,2026-05-15,555-0100,jsmith@example.com,Monthly injection
+PT-002,M. Brown,Margaret,Brown,Ketamine Maintenance,Dr. Patel,2026-04-28,2026-05-26,,mbrowncare@example.com,Maintenance phase`;
 
 // === Practice Fusion Appointment Import ===
 // Handles both modern PF export headers (AppointmentTime, AppointmentStatus, etc.)

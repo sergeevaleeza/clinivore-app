@@ -188,8 +188,21 @@ export default function PatientsPage() {
   );
 }
 
+function suggestDisplayName(firstName: string, lastName: string): string {
+  if (!firstName || !lastName) return "";
+  const initial = firstName.trim().charAt(0).toUpperCase();
+  return `${initial}. ${lastName.trim()}`;
+}
+
 function AddPatientModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: () => void }) {
-  const [form, setForm] = useState({ displayName: "", internalId: "", providerName: "", phoneOptional: "", emailOptional: "" });
+  const [legalFirstName, setLegalFirstName] = useState("");
+  const [legalLastName, setLegalLastName] = useState("");
+  const [displayName, setDisplayName] = useState("");
+  const [displayNameTouched, setDisplayNameTouched] = useState(false);
+  const [internalId, setInternalId] = useState("");
+  const [providerName, setProviderName] = useState("");
+  const [phoneOptional, setPhoneOptional] = useState("");
+  const [emailOptional, setEmailOptional] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -201,7 +214,7 @@ function AddPatientModal({ onClose, onSuccess }: { onClose: () => void; onSucces
       const res = await fetch("/api/patients", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ legalFirstName, legalLastName, displayName, internalId, providerName, phoneOptional, emailOptional }),
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error ?? "Failed to create patient"); return; }
@@ -213,29 +226,101 @@ function AddPatientModal({ onClose, onSuccess }: { onClose: () => void; onSucces
     }
   };
 
+  const inputCls = "w-full text-sm border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500";
+  const labelCls = "block text-xs font-medium text-gray-700 mb-1";
+
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
-        <h2 className="text-base font-semibold text-gray-900 mb-4">Add New Patient</h2>
+      <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto">
+        <h2 className="text-base font-semibold text-gray-900 mb-1">Add New Patient</h2>
+        <p style={{ fontSize: 11, color: "var(--text-muted)", marginBottom: 16 }}>
+          Legal name is used to match this patient against Practice Fusion appointment exports. Only Display Name appears in tables and patient views.
+        </p>
         <form onSubmit={handleSubmit} className="space-y-3">
-          {[
-            { key: "displayName", label: "Display Name *", placeholder: "e.g. J. Smith" },
-            { key: "internalId", label: "Internal ID *", placeholder: "e.g. PF-10001" },
-            { key: "providerName", label: "Provider *", placeholder: "e.g. Dr. Patel" },
-            { key: "phoneOptional", label: "Phone (optional)", placeholder: "555-0100" },
-            { key: "emailOptional", label: "Email (optional)", placeholder: "patient@example.com" },
-          ].map((field) => (
-            <div key={field.key}>
-              <label className="block text-xs font-medium text-gray-700 mb-1">{field.label}</label>
-              <input
-                type="text"
-                placeholder={field.placeholder}
-                value={form[field.key as keyof typeof form]}
-                onChange={(e) => setForm({ ...form, [field.key]: e.target.value })}
-                className="w-full text-sm border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          ))}
+          <div>
+            <label className={labelCls}>Legal First Name *</label>
+            <input
+              type="text"
+              placeholder="e.g. Amy"
+              value={legalFirstName}
+              onChange={(e) => {
+                setLegalFirstName(e.target.value);
+                if (!displayNameTouched) setDisplayName(suggestDisplayName(e.target.value, legalLastName));
+              }}
+              required
+              className={inputCls}
+            />
+          </div>
+          <div>
+            <label className={labelCls}>Legal Last Name *</label>
+            <input
+              type="text"
+              placeholder="e.g. Kim"
+              value={legalLastName}
+              onChange={(e) => {
+                setLegalLastName(e.target.value);
+                if (!displayNameTouched) setDisplayName(suggestDisplayName(legalFirstName, e.target.value));
+              }}
+              required
+              className={inputCls}
+            />
+          </div>
+          <div>
+            <label className={labelCls}>Display Name *</label>
+            <input
+              type="text"
+              placeholder="e.g. A. Kim"
+              value={displayName}
+              onChange={(e) => { setDisplayName(e.target.value); setDisplayNameTouched(true); }}
+              required
+              className={inputCls}
+            />
+            <p style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 4 }}>
+              Shown throughout the app. Auto-suggested from legal name, editable.
+            </p>
+          </div>
+          <div>
+            <label className={labelCls}>Internal ID *</label>
+            <input
+              type="text"
+              placeholder="e.g. PF-10001"
+              value={internalId}
+              onChange={(e) => setInternalId(e.target.value)}
+              required
+              className={inputCls}
+            />
+          </div>
+          <div>
+            <label className={labelCls}>Provider *</label>
+            <input
+              type="text"
+              placeholder="e.g. Dr. Patel"
+              value={providerName}
+              onChange={(e) => setProviderName(e.target.value)}
+              required
+              className={inputCls}
+            />
+          </div>
+          <div>
+            <label className={labelCls}>Phone (optional)</label>
+            <input
+              type="text"
+              placeholder="555-0100"
+              value={phoneOptional}
+              onChange={(e) => setPhoneOptional(e.target.value)}
+              className={inputCls}
+            />
+          </div>
+          <div>
+            <label className={labelCls}>Email (optional)</label>
+            <input
+              type="text"
+              placeholder="patient@example.com"
+              value={emailOptional}
+              onChange={(e) => setEmailOptional(e.target.value)}
+              className={inputCls}
+            />
+          </div>
           {error && <p className="text-xs text-red-600">{error}</p>}
           <div className="flex gap-2 pt-2">
             <button type="button" onClick={onClose} className="btn btn-secondary flex-1">Cancel</button>

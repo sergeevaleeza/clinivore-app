@@ -63,3 +63,36 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     return NextResponse.json({ error: "Failed to update patient" }, { status: 500 });
   }
 }
+
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const { id } = await params;
+    const body = await req.json();
+    const updateData: Record<string, string> = {};
+
+    if (body.legalFirstName !== undefined) updateData.legalFirstName = body.legalFirstName.trim();
+    if (body.legalLastName !== undefined) updateData.legalLastName = body.legalLastName.trim();
+
+    if (!Object.keys(updateData).length) {
+      return NextResponse.json({ error: "No fields to update" }, { status: 400 });
+    }
+
+    const patient = await prisma.patient.update({
+      where: { id },
+      data: updateData,
+    });
+
+    await logAudit({
+      actorName: "Staff",
+      action: "UPDATE_PATIENT_LEGAL_NAME",
+      entityType: "Patient",
+      entityId: id,
+      metadata: {},
+    });
+
+    return NextResponse.json({ patient });
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ error: "Failed to update patient" }, { status: 500 });
+  }
+}

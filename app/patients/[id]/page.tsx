@@ -54,6 +54,8 @@ interface Patient {
   phoneOptional: string | null;
   emailOptional: string | null;
   isActive: boolean;
+  legalFirstName: string | null;
+  legalLastName: string | null;
   enrollments: Enrollment[];
   treatmentEvents: TreatmentEvent[];
   outreachTasks: OutreachTask[];
@@ -90,6 +92,10 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
   const [rescheduleDate, setRescheduleDate] = useState("");
   const [note, setNote] = useState("");
   const [pauseReason, setPauseReason] = useState("");
+  const [editingName, setEditingName] = useState(false);
+  const [editFirst, setEditFirst] = useState("");
+  const [editLast, setEditLast] = useState("");
+  const [nameLoading, setNameLoading] = useState(false);
 
   const fetchPatient = async () => {
     try {
@@ -164,6 +170,21 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
     } finally { setDraftLoading(false); }
   };
 
+  const saveNameEdit = async () => {
+    setNameLoading(true);
+    try {
+      await fetch(`/api/patients/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ legalFirstName: editFirst, legalLastName: editLast }),
+      });
+      await fetchPatient();
+      setEditingName(false);
+    } finally {
+      setNameLoading(false);
+    }
+  };
+
   if (loading) return <LoadingSpinner label="Loading patient..." />;
   if (!patient) return <div className="text-red-600 py-8">Patient not found</div>;
 
@@ -190,35 +211,80 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
         <div className="space-y-4">
           {/* Patient card */}
           <div className="card p-4">
-            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Patient Info</h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-500">Internal ID</span>
-                <span className="font-mono text-gray-800">{patient.internalId}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-500">Provider</span>
-                <span className="text-gray-800">{patient.providerName}</span>
-              </div>
-              {patient.phoneOptional && (
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Phone</span>
-                  <span className="text-gray-800">{patient.phoneOptional}</span>
-                </div>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Patient Info</h3>
+              {!editingName && (
+                <button
+                  onClick={() => { setEditFirst(patient.legalFirstName ?? ""); setEditLast(patient.legalLastName ?? ""); setEditingName(true); }}
+                  className="text-xs text-blue-600 hover:underline"
+                >
+                  Edit legal name
+                </button>
               )}
-              {patient.emailOptional && (
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Email</span>
-                  <span className="text-gray-800 truncate max-w-32">{patient.emailOptional}</span>
-                </div>
-              )}
-              <div className="flex justify-between">
-                <span className="text-gray-500">Status</span>
-                <span className={`text-xs font-medium ${patient.isActive ? "text-green-600" : "text-gray-400"}`}>
-                  {patient.isActive ? "Active" : "Inactive"}
-                </span>
-              </div>
             </div>
+            {editingName ? (
+              <div className="space-y-2 text-sm">
+                <div>
+                  <label className="block text-xs text-gray-500 mb-0.5">Legal First Name</label>
+                  <input
+                    type="text"
+                    value={editFirst}
+                    onChange={(e) => setEditFirst(e.target.value)}
+                    className="w-full text-sm border border-gray-300 rounded-md px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-500 mb-0.5">Legal Last Name</label>
+                  <input
+                    type="text"
+                    value={editLast}
+                    onChange={(e) => setEditLast(e.target.value)}
+                    className="w-full text-sm border border-gray-300 rounded-md px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div className="flex gap-2 pt-1">
+                  <button onClick={saveNameEdit} disabled={nameLoading} className="btn btn-primary flex-1 text-xs">
+                    {nameLoading ? "Saving..." : "Save"}
+                  </button>
+                  <button onClick={() => setEditingName(false)} className="btn btn-secondary flex-1 text-xs">Cancel</button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-2 text-sm">
+                {(patient.legalFirstName || patient.legalLastName) && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Legal name</span>
+                    <span className="text-gray-800">{[patient.legalFirstName, patient.legalLastName].filter(Boolean).join(" ")}</span>
+                  </div>
+                )}
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Internal ID</span>
+                  <span className="font-mono text-gray-800">{patient.internalId}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Provider</span>
+                  <span className="text-gray-800">{patient.providerName}</span>
+                </div>
+                {patient.phoneOptional && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Phone</span>
+                    <span className="text-gray-800">{patient.phoneOptional}</span>
+                  </div>
+                )}
+                {patient.emailOptional && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Email</span>
+                    <span className="text-gray-800 truncate max-w-32">{patient.emailOptional}</span>
+                  </div>
+                )}
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Status</span>
+                  <span className={`text-xs font-medium ${patient.isActive ? "text-green-600" : "text-gray-400"}`}>
+                    {patient.isActive ? "Active" : "Inactive"}
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Enrollment card */}
@@ -384,7 +450,6 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
               <div className="text-center py-6 text-gray-400 text-sm">No activity recorded yet.</div>
             ) : (
               <div className="space-y-2">
-                {/* Merge and sort events + outreach */}
                 {[
                   ...patient.treatmentEvents.map((e) => ({
                     id: e.id,

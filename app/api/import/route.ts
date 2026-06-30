@@ -29,6 +29,7 @@ export async function POST(req: NextRequest) {
       row: r._rowIndex,
       errors: r._errors,
     }));
+    const missingLegalName: string[] = [];
 
     for (const row of validRows) {
       try {
@@ -45,6 +46,9 @@ export async function POST(req: NextRequest) {
             providerName: row.provider_name,
             phoneOptional: row.phone_optional || null,
             emailOptional: row.email_optional || null,
+            // Only update legal name if the CSV row provides it; don't overwrite existing value with null
+            legalFirstName: row.legal_first_name?.trim() || undefined,
+            legalLastName: row.legal_last_name?.trim() || undefined,
           },
           create: {
             displayName: row.display_name,
@@ -52,8 +56,14 @@ export async function POST(req: NextRequest) {
             providerName: row.provider_name,
             phoneOptional: row.phone_optional || null,
             emailOptional: row.email_optional || null,
+            legalFirstName: row.legal_first_name?.trim() || null,
+            legalLastName: row.legal_last_name?.trim() || null,
           },
         });
+
+        if (!row.legal_first_name?.trim() || !row.legal_last_name?.trim()) {
+          missingLegalName.push(row.internal_id);
+        }
 
         if (protocol) {
           // Check for existing active enrollment in this protocol
@@ -113,6 +123,9 @@ export async function POST(req: NextRequest) {
       importedCount,
       skippedCount: rows.length - importedCount,
       errors,
+      warnings: missingLegalName.length > 0 ? [
+        `${missingLegalName.length} patient(s) imported without legal name — Practice Fusion import matching will not work until corrected: ${missingLegalName.join(", ")}`,
+      ] : [],
     });
   } catch (err) {
     console.error(err);

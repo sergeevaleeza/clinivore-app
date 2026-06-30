@@ -4,6 +4,42 @@ All notable changes to Clinivore are documented here.
 
 ---
 
+## [0.5.0] — 2026-06-30
+
+### Feature: Legal Name Fields in Patient Forms, Edit UI, and Roster CSV
+
+**Root cause addressed**: Patients added via the "Add New Patient" modal or roster CSV import had `legalFirstName: null` / `legalLastName: null`, silently breaking Practice Fusion appointment matching for every real patient added after seed data.
+
+**Add Patient modal (`app/patients/page.tsx`)**
+- Added `Legal First Name *` and `Legal Last Name *` as required fields, positioned above Display Name
+- `suggestDisplayName()` auto-fills Display Name as "A. Kim" when staff types "Amy" + "Kim" — stops auto-suggesting once staff manually edits the field (`displayNameTouched` flag)
+- Explanatory note below the fields: legal name is used for PF matching only; Display Name is what appears everywhere else in the app
+
+**Patient Detail page (`app/patients/[id]/page.tsx`)**
+- Patient Info card now shows "Legal name: Jane Doe" row when set
+- "Edit legal name" link opens an inline form (two inputs + Save/Cancel) — does not affect Display Name
+- Save calls `PATCH /api/patients/[id]` with only the legal name fields; refreshes patient data on success
+
+**`POST /api/patients` (`app/api/patients/route.ts`)**
+- Now accepts and validates `legalFirstName` + `legalLastName` (both required)
+- Returns 400 if either is missing; audit log unchanged (legal names not included in metadata)
+
+**`PATCH /api/patients/[id]` (`app/api/patients/[id]/route.ts`)** — new endpoint
+- Accepts `{ legalFirstName?, legalLastName? }` — updates only fields that are provided
+- Logs `UPDATE_PATIENT_LEGAL_NAME` audit action with no name values in metadata
+
+**Roster CSV template (`lib/csvImport.ts`)**
+- Added `legal_first_name` and `legal_last_name` as optional-but-recommended columns (positions 3–4, after `display_name`)
+- Template example rows updated to include full legal names
+- `validateCsvRow` passes new fields through; rows without them still import (backward compatible)
+
+**Roster CSV import API (`app/api/import/route.ts`)**
+- `patient.create` stores `legalFirstName` / `legalLastName` from CSV (null if omitted)
+- `patient.update` sets legal names only when the CSV row provides them — does not overwrite existing values with null on re-import
+- Response now includes `warnings: string[]` listing internal IDs imported without legal names
+
+---
+
 ## [0.4.1] — 2026-06-30
 
 ### Fix: Legal Name Fields for Practice Fusion Name Matching

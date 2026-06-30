@@ -43,10 +43,13 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { displayName, internalId, providerName, phoneOptional, emailOptional } = body;
+    const { legalFirstName, legalLastName, displayName, internalId, providerName, phoneOptional, emailOptional } = body;
 
-    if (!displayName || !internalId || !providerName) {
+    if (!displayName?.trim() || !internalId?.trim() || !providerName?.trim()) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
+    if (!legalFirstName?.trim() || !legalLastName?.trim()) {
+      return NextResponse.json({ error: "Legal first and last name are required" }, { status: 400 });
     }
 
     const existing = await prisma.patient.findUnique({ where: { internalId } });
@@ -55,7 +58,15 @@ export async function POST(req: NextRequest) {
     }
 
     const patient = await prisma.patient.create({
-      data: { displayName, internalId, providerName, phoneOptional, emailOptional },
+      data: {
+        legalFirstName: legalFirstName.trim(),
+        legalLastName: legalLastName.trim(),
+        displayName: displayName.trim(),
+        internalId: internalId.trim(),
+        providerName: providerName.trim(),
+        phoneOptional: phoneOptional || null,
+        emailOptional: emailOptional || null,
+      },
     });
 
     await logAudit({
@@ -63,7 +74,7 @@ export async function POST(req: NextRequest) {
       action: "CREATE_PATIENT",
       entityType: "Patient",
       entityId: patient.id,
-      metadata: { internalId, displayName },
+      metadata: { internalId: patient.internalId, displayName: patient.displayName },
     });
 
     return NextResponse.json({ patient }, { status: 201 });
