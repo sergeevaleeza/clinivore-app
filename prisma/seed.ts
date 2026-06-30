@@ -3,7 +3,8 @@ import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
-const TODAY = new Date("2026-05-25");
+const TODAY = new Date();
+TODAY.setHours(9, 0, 0, 0);
 
 function daysAgo(n: number): Date {
   const d = new Date(TODAY);
@@ -39,7 +40,7 @@ async function main() {
       { name: "Admin User", email: "admin@clinivore.local", role: "ADMIN", passwordHash },
       { name: "Dr. Levinson", email: "levinson@clinivore.local", role: "PROVIDER", passwordHash },
       { name: "Dr. Patel", email: "patel@clinivore.local", role: "PROVIDER", passwordHash },
-      { name: "Office Staff", email: "staff@clinivore.local", role: "STAFF", passwordHash },
+      { name: "Office Staff", email: "demo@clinivore.com", role: "STAFF", passwordHash },
     ],
   });
 
