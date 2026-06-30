@@ -1,5 +1,13 @@
 import PageHeader from "@/components/PageHeader";
 
+function getDatabaseLabel(): string {
+  const url = process.env.DATABASE_URL ?? "";
+  if (url.includes("neon.tech")) return "PostgreSQL (Neon)";
+  if (url.startsWith("postgres") || url.startsWith("postgresql")) return "PostgreSQL";
+  if (url.startsWith("file:")) return "SQLite (local)";
+  return "Unknown";
+}
+
 export default function SettingsPage() {
   return (
     <div>
@@ -51,7 +59,7 @@ export default function SettingsPage() {
             </div>
             <div className="flex justify-between py-2 border-b border-gray-100">
               <span className="text-gray-500">Database</span>
-              <span className="font-mono text-gray-800 text-xs bg-gray-100 px-2 py-0.5 rounded">SQLite (local)</span>
+              <span className="font-mono text-gray-800 text-xs bg-gray-100 px-2 py-0.5 rounded">{getDatabaseLabel()}</span>
             </div>
             <div className="flex justify-between py-2">
               <span className="text-gray-500">Audit Logging</span>

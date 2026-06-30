@@ -13,7 +13,7 @@ export default function PageHeader({ title, subtitle, action }: Props) {
             style={{
               fontSize: 22,
               fontWeight: 700,
-              color: "var(--navy)",
+              color: "var(--text-primary)",
               fontFamily: "var(--font-sora)",
               margin: 0,
             }}

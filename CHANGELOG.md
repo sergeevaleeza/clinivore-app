@@ -4,6 +4,34 @@ All notable changes to Clinivore are documented here.
 
 ---
 
+## [0.3.2] — 2026-06-29
+
+### Infrastructure
+- Switched database from SQLite to PostgreSQL (Neon) for Vercel deployment — updated `prisma/schema.prisma` provider to `postgresql`
+- Generated `NEXTAUTH_SECRET` and configured in `.env`
+
+### Seed Data (`prisma/seed.ts`)
+- **Fixed stale demo data**: `TODAY` constant changed from hardcoded `new Date("2026-05-25")` to `new Date()` — all patient dates now compute relative to the moment the seed runs, so the dashboard always shows a realistic distribution (overdue / due today / due soon / on track) regardless of when it's seeded
+- Demo staff account email renamed `staff@clinivore.local` → `demo@clinivore.com`
+
+### Login Page
+- Email placeholder updated from `you@clinivore.local` → `demo@clinivore.com`
+
+### Settings Page (`app/settings/page.tsx`)
+- Database label now derived from `DATABASE_URL` at render time via `getDatabaseLabel()` — shows `"PostgreSQL (Neon)"` on Neon, `"PostgreSQL"` for other Postgres, `"SQLite (local)"` for file-based, never stale
+
+### Dark Mode Fixes
+- **Page header titles** (`components/PageHeader.tsx`): changed `color: "var(--navy)"` → `color: "var(--text-primary)"` — `--navy` has no dark override and was invisible against the dark page background; `--text-primary` correctly resolves to `#F1ECE4` in dark mode
+- **Dashboard greeting h1** (`app/page.tsx`): same `var(--navy)` → `var(--text-primary)` fix; also fixed two section heading h2s and the patient name link/hover-restore
+- **Dashboard card backgrounds** (`app/page.tsx`): changed all three card containers (stat cards, Urgent Patients panel, Treatment Status Overview chart) from hardcoded `background: "#ffffff"` → `background: "var(--card-bg)"` which resolves to `#112A4F` in dark mode
+- **Filter inputs & dropdowns** (`app/patients/page.tsx`, `app/outreach/page.tsx`): replaced Tailwind `border-gray-300` (hardcoded light color) with inline CSS vars `var(--input-bg)` / `var(--input-border)` / `var(--input-text)` — already have correct dark values defined in `globals.css`
+- **Button dark mode overrides** (`app/globals.css`): added `[data-theme="dark"]` rules for `.btn-secondary` (translucent blue instead of light `#EEF4FF`), `.btn-danger` (translucent red, softer `#F87171` text), `.btn-tertiary` hover, and `.btn-primary` hover
+
+### Bug Fix
+- Removed unused `formatDate` import from `app/page.tsx` (TypeScript hint 6133)
+
+---
+
 ## [0.3.1] — 2026-05-26
 
 ### Dark / Light Theme Toggle

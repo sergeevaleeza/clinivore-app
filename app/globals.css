@@ -95,6 +95,24 @@
   --table-hover: rgba(75,142,245,0.08);
 }
 
+/* === DARK MODE BUTTON OVERRIDES === */
+[data-theme="dark"] .btn-primary:hover { background-color: #12B8A8; }
+
+[data-theme="dark"] .btn-secondary {
+  background-color: rgba(75, 142, 245, 0.12);
+  border-color: rgba(75, 142, 245, 0.25);
+}
+[data-theme="dark"] .btn-secondary:hover { background-color: rgba(75, 142, 245, 0.22); }
+
+[data-theme="dark"] .btn-tertiary:hover { background-color: rgba(75, 142, 245, 0.12); }
+
+[data-theme="dark"] .btn-danger {
+  background-color: rgba(185, 28, 28, 0.15);
+  color: #F87171;
+  border-color: rgba(185, 28, 28, 0.3);
+}
+[data-theme="dark"] .btn-danger:hover { background-color: rgba(185, 28, 28, 0.25); }
+
 /* === TYPOGRAPHY === */
 body {
   font-family: var(--font-inter), system-ui, sans-serif;

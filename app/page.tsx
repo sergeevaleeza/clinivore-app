@@ -5,7 +5,7 @@ import Link from "next/link";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import StatusBadge from "@/components/StatusBadge";
 import LoadingSpinner from "@/components/LoadingSpinner";
-import { formatDate, daysFromNow, daysLabel, type TreatmentStatus } from "@/lib/status";
+import { daysFromNow, daysLabel, type TreatmentStatus } from "@/lib/status";
 
 interface DashboardData {
   stats: {
@@ -99,7 +99,7 @@ export default function DashboardPage() {
           style={{
             fontSize: 26,
             fontWeight: 700,
-            color: "var(--navy)",
+            color: "var(--text-primary)",
             fontFamily: "var(--font-sora)",
             margin: 0,
           }}
@@ -117,7 +117,7 @@ export default function DashboardPage() {
           <div
             key={card.key}
             style={{
-              background: "#ffffff",
+              background: "var(--card-bg)",
               borderRadius: 16,
               border: "1px solid var(--card-border)",
               boxShadow: "var(--card-shadow)",
@@ -209,7 +209,7 @@ export default function DashboardPage() {
               style={{
                 fontSize: 14,
                 fontWeight: 600,
-                color: "var(--navy)",
+                color: "var(--text-primary)",
                 fontFamily: "var(--font-sora)",
                 margin: 0,
               }}
@@ -248,11 +248,11 @@ export default function DashboardPage() {
                           style={{
                             fontSize: 13,
                             fontWeight: 600,
-                            color: "var(--navy)",
+                            color: "var(--text-primary)",
                             textDecoration: "none",
                           }}
                           onMouseEnter={(e) => (e.currentTarget.style.color = "var(--blue)")}
-                          onMouseLeave={(e) => (e.currentTarget.style.color = "var(--navy)")}
+                          onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-primary)")}
                         >
                           {p.displayName}
                         </Link>
@@ -303,7 +303,7 @@ export default function DashboardPage() {
             style={{
               fontSize: 14,
               fontWeight: 600,
-              color: "var(--navy)",
+              color: "var(--text-primary)",
               fontFamily: "var(--font-sora)",
               margin: "0 0 16px",
             }}
