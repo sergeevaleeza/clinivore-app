@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { logAudit } from "@/lib/audit";
+import { completeTreatment, markMissedTreatment } from "@/lib/enrollments";
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -17,60 +18,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     const actDate = eventDate ? new Date(eventDate) : new Date();
 
     if (action === "COMPLETED") {
-      const nextDue = new Date(actDate);
-      nextDue.setDate(nextDue.getDate() + enrollment.protocol.defaultIntervalDays);
-
-      await prisma.treatmentEnrollment.update({
-        where: { id },
-        data: { lastTreatmentDate: actDate, nextDueDate: nextDue },
-      });
-
-      await prisma.treatmentEvent.create({
-        data: {
-          patientId: enrollment.patientId,
-          enrollmentId: id,
-          eventType: "COMPLETED",
-          eventDate: actDate,
-          note: note ?? "Treatment completed.",
-        },
-      });
-
-      await logAudit({
-        actorName: "Staff",
-        action: "MARK_COMPLETED",
-        entityType: "TreatmentEnrollment",
-        entityId: id,
-        metadata: { patientId: enrollment.patientId, protocol: enrollment.protocol.name, date: actDate },
-      });
+      await completeTreatment(id, actDate, note ?? "Treatment completed.");
     } else if (action === "MISSED") {
-      await prisma.treatmentEvent.create({
-        data: {
-          patientId: enrollment.patientId,
-          enrollmentId: id,
-          eventType: "MISSED",
-          eventDate: actDate,
-          note: note ?? "Treatment missed.",
-        },
-      });
-
-      await prisma.outreachTask.create({
-        data: {
-          patientId: enrollment.patientId,
-          enrollmentId: id,
-          reason: `Missed ${enrollment.protocol.name} treatment`,
-          status: "OPEN",
-          priority: "HIGH",
-          dueDate: new Date(),
-        },
-      });
-
-      await logAudit({
-        actorName: "Staff",
-        action: "MARK_MISSED",
-        entityType: "TreatmentEnrollment",
-        entityId: id,
-        metadata: { patientId: enrollment.patientId, protocol: enrollment.protocol.name },
-      });
+      await markMissedTreatment(id, actDate, note ?? "Treatment missed.");
     } else if (action === "RESCHEDULE") {
       if (!newDate) return NextResponse.json({ error: "newDate required" }, { status: 400 });
       const reschedDate = new Date(newDate);
@@ -79,7 +29,6 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         where: { id },
         data: { nextDueDate: reschedDate },
       });
-
       await prisma.treatmentEvent.create({
         data: {
           patientId: enrollment.patientId,
@@ -89,7 +38,6 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
           note: note ?? `Rescheduled to ${reschedDate.toLocaleDateString()}`,
         },
       });
-
       await logAudit({
         actorName: "Staff",
         action: "RESCHEDULE",
@@ -102,7 +50,6 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         where: { id },
         data: { status: body.status },
       });
-
       await logAudit({
         actorName: "Staff",
         action: "UPDATE_ENROLLMENT_STATUS",

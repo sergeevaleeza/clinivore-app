@@ -4,6 +4,50 @@ All notable changes to Clinivore are documented here.
 
 ---
 
+## [0.4.0] — 2026-06-29
+
+### Feature: Practice Fusion Appointment Import
+
+New second tab on the Import page (`/import`) — staff can upload a Practice Fusion appointment export CSV directly without any manual reformatting.
+
+**Parser (`lib/csvImport.ts`)**
+- Added `parsePfAppointmentRow()`: handles both modern PF export column names (`AppointmentTime`, `AppointmentStatus`, `SeenBy`) and legacy space-separated names (`DATE/TIME`, `APPT. STATUS`, `SEEN BY PROVIDER`) with a multi-key fallback
+- Added `normalizeApptStatus()`: maps freeform PF status strings (`"Checked Out"`, `"No Show"`, `"Canceled"`, etc.) to four canonical values: `completed | no_show | cancelled | unknown`
+- Added `matchPatientByName()`: fuzzy Levenshtein name matching (distance ≤ 2, no external dependency), handles `"Last, First"` → `"first last"` normalization
+- Design constraint honored: `AppointmentType` is extracted but never used for matching or automation — displayed to staff as context only
+
+**Shared enrollment logic (`lib/enrollments.ts`)** — new file
+- `completeTreatment(enrollmentId, date, note)`: extracted from PATCH `/api/enrollments/[id]` — updates `lastTreatmentDate`, computes `nextDueDate` from `protocol.defaultIntervalDays`, creates `TreatmentEvent(COMPLETED)`, writes audit log
+- `markMissedTreatment(enrollmentId, date, note)`: same extraction — creates `TreatmentEvent(MISSED)`, creates `OutreachTask(priority: HIGH)`, writes audit log
+- Both actions now called from the PATCH route and the new PF confirm route — zero duplication of next-due-date logic
+
+**API: Preview** (`POST /api/import/pf-appointments/preview`)
+- Parses all rows, matches each to an active patient by name (exact then fuzzy)
+- For matched patients with active enrollments: returns candidate events; pre-checks only the most recent `completed` appointment per enrollment (staff can override)
+- For matched patients without active enrollments: lists under "No Protocol Assigned" (informational only)
+- For unmatched rows: lists under "Unmatched"
+- Writes audit log: `PF_APPOINTMENT_PREVIEW` (entity-level only, no patient data in metadata)
+- Does not write to the database
+
+**API: Confirm** (`POST /api/import/pf-appointments/confirm`)
+- Accepts staff-confirmed event list; calls `completeTreatment()` or `markMissedTreatment()` for each
+- Creates `ImportBatch` record; writes audit log `PF_APPOINTMENT_IMPORT_CONFIRMED`
+- Returns `{ eventsCreated, outreachTasksCreated }`
+
+**UI (`app/import/page.tsx`)**
+- Added tab navigation: `[Patient Roster CSV] [Practice Fusion Appointments]`
+- PF tab: upload → auto-preview → staff review with per-event checkboxes → confirm
+- Candidate events show: patient name, protocol, date, raw appt status badge, appt type (labeled "for reference only"), fuzzy match warning, "not the most recent visit" warning for older events in the same file
+- No-show events display: "→ Will create: Missed event + HIGH priority outreach task"
+- Confirm button disabled until at least one event is checked; label updates live with checked count
+- Success screen shows events created + outreach tasks created
+- Roster tab unchanged
+
+**Settings page copy (`app/settings/page.tsx`)**
+- Updated Practice Fusion description to accurately reflect the import capability that now exists, rather than describing it as future-only
+
+---
+
 ## [0.3.2] — 2026-06-29
 
 ### Infrastructure

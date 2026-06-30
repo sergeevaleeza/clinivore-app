@@ -117,7 +117,7 @@ export default function SettingsPage() {
           <div className="space-y-4 text-xs">
             <div>
               <div className="font-medium text-gray-700 mb-1">Practice Fusion EHR</div>
-              <p className="text-gray-500">Phase 2 will integrate with the Practice Fusion API to pull scheduled appointments, push chart notes directly, and sync patient demographics. Requires Practice Fusion API credentials and a BAA.</p>
+              <p className="text-gray-500">Import Practice Fusion appointment exports directly — no manual reformatting required. Clinivore matches patients by name, then staff confirms which visits are treatment events. Missed appointments are detected automatically from appointment status. Full FHIR API integration is in active development for Phase 2.</p>
             </div>
             <div>
               <div className="font-medium text-gray-700 mb-1">Twilio SMS / Voice</div>
